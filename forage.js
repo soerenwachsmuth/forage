@@ -242,12 +242,18 @@ mw.loader.using("@wikimedia/codex").then(function (require) {
                   propertyDatatypeMap[propID] = value.datatype;
                   //let propertyIDs = Object.keys(value.claims);
                   //setStatementsMap(value, propertyIDs);
+                  var propLabel;
+                  if (value.labels && value.labels[lang]) {
+                    propLabel = value.labels[lang].value;
+                  } else if (value.labels && value.labels["en"]) {
+                    propLabel = value.labels["en"].value;
+                  } else {
+                    propLabel = propID;
+                  }
                   return {
                     id: propID,
                     datatype: value.datatype,
-                    label: value.labels[lang]
-                      ? value.labels[lang].value
-                      : value.labels["en"].value,
+                    label: propLabel,
                   };
                 });
                 allProperties = allProperties.concat(allProps);
@@ -303,12 +309,18 @@ mw.loader.using("@wikimedia/codex").then(function (require) {
               // Process each property in the batch
               Object.keys(allItemData).forEach(function (itemID) {
               	var curItemData = allItemData[itemID];
+              	var propLabel;
+              	if (curItemData.labels && curItemData.labels[lang]) {
+              		propLabel = curItemData.labels[lang].value;
+              	} else if (curItemData.labels && curItemData.labels["en"]) {
+              		propLabel = curItemData.labels["en"].value;
+              	} else {
+              		propLabel = curItemData.id;
+              	}
               	properties.push({
               		id: curItemData.id,
               		datatype: curItemData.datatype,
-              		label: curItemData.labels[lang]
-              		? curItemData.labels[lang].value
-              		: curItemData.labels["en"].value,
+              		label: propLabel,
               	});
               });
               return {
@@ -367,9 +379,9 @@ mw.loader.using("@wikimedia/codex").then(function (require) {
             Object.keys(allItemData).forEach(function (itemID) {
               var curItemData = allItemData[itemID];
               var curClassLabel;
-              if (curItemData.labels[lang]) {
+              if (curItemData.labels && curItemData.labels[lang]) {
               	curClassLabel = curItemData.labels[lang].value;
-              } else if (lang !== "en" && curItemData.labels["en"]) {
+              } else if (lang !== "en" && curItemData.labels && curItemData.labels["en"]) {
               	curClassLabel = curItemData.labels["en"].value;
               } else {
               	curClassLabel = curItemData.id;
@@ -617,9 +629,9 @@ mw.loader.using("@wikimedia/codex").then(function (require) {
             var labels = {};
             Object.keys(allItemData).forEach(function (itemID) {
               var curItemData = allItemData[itemID];
-              if (curItemData.labels[lang]) {
+              if (curItemData.labels && curItemData.labels[lang]) {
               	labels[curItemData.id] = curItemData.labels[lang].value
-              } else if (lang != "en" && curItemData.labels["en"] ) {
+              } else if (lang != "en" && curItemData.labels && curItemData.labels["en"] ) {
                 labels[curItemData.id] = curItemData.labels["en"].value;
               } else {
                 labels[curItemData.id] = itemID;
@@ -666,9 +678,14 @@ mw.loader.using("@wikimedia/codex").then(function (require) {
         result.done(async function (res) {
           var unitEntities = res.entities;
           Object.keys(unitEntities).forEach(function (unitID) {
-            var unitLabel = unitEntities[unitID].labels[lang]
-              ? unitEntities[unitID].labels[lang].value
-              : unitEntities[unitID].labels["en"].value;
+            var unitLabel;
+            if (unitEntities[unitID].labels && unitEntities[unitID].labels[lang]) {
+              unitLabel = unitEntities[unitID].labels[lang].value;
+            } else if (unitEntities[unitID].labels && unitEntities[unitID].labels["en"]) {
+              unitLabel = unitEntities[unitID].labels["en"].value;
+            } else {
+              unitLabel = unitID;
+            }
             $(unitID).replaceWith(unitLabel);
           });
         });
